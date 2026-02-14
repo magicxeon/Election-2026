@@ -30,7 +30,6 @@ async function init() {
         container.innerHTML = `<div class="p-10 text-red-500 text-center">
             <p class="text-xl font-bold">ไม่สามารถโหลดไฟล์ข้อมูลได้</p>
             <p class="text-sm">${e.message}</p>
-            <p class="text-xs mt-4">คำแนะนำ: หากเปิดไฟล์โดยตรง ให้ลองใช้ Live Server แทน</p>
         </div>`;
     }
 }
