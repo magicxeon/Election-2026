@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>แดชบอร์ดเลือกตั้ง 2569 V8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        .card { background: white; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #eef2f6; }
+        .floating-btn { position: fixed; bottom: 2rem; right: 2rem; z-index: 100; width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3); transition: all 0.3s; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .party-grid { max-height: 400px; overflow-y: auto; scrollbar-width: thin; }
+        .vote-type-btn { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
+        .vote-type-btn.active { border-color: #2563eb; background-color: #eff6ff; color: #1e40af; font-weight: 800; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+    <div class="max-w-full mx-auto pb-32">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-black text-slate-800 tracking-tight">แดชบอร์ดวิเคราะห์การกระจายคะแนนและการย้ายพรรค</h1>
+            <p class="text-slate-500 text-lg italic mt-2">วิเคราะห์ฐานเสียงรายจังหวัดและพฤติกรรมผู้สมัครย้ายสังกัด</p>
+        </header>
+
+        <div class="card p-10 min-h-[1600px] flex flex-col relative mb-12 shadow-2xl">
+            <h2 class="text-2xl font-black text-slate-800 mb-8">📊 แผนภาพการกระจายคะแนน (ไหลจากจังหวัดสู่พรรค)</h2>
+            <div id="sankey_main" class="w-full h-[1500px]">
+                <div class="h-full flex flex-col items-center justify-center text-slate-300 italic text-center">
+                    <p class="text-9xl mb-8 opacity-10">🔍</p>
+                    <p class="text-2xl font-bold">รอการเลือกพรรคการเมืองเพื่อเริ่มวิเคราะห์</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="insightSection" class="space-y-16"></div>
+    </div>
+
+    <button onclick="toggleModal(true)" class="floating-btn bg-blue-600 text-white flex flex-col items-center justify-center">
+        <span class="text-3xl">🗳️</span>
+        <span class="text-[10px] font-black uppercase mt-1">ตั้งค่า</span>
+    </button>
+
+    <div id="selectorModal" class="modal p-6" onclick="if(event.target==this) toggleModal(false)">
+        <div class="card w-full max-w-6xl p-10 relative">
+            <button onclick="toggleModal(false)" class="absolute top-8 right-8 text-slate-400 text-4xl font-bold">✕</button>
+            <h2 class="text-3xl font-black text-slate-800 mb-10">⚙️ ตั้งค่าข้อมูลที่ต้องการดู</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-10">
+                <div class="space-y-8">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-4">ประเภทคะแนน</label>
+                        <div class="flex gap-3 bg-slate-100 p-2 rounded-2xl w-full">
+                            <div onclick="setVoteType('Both')" class="vote-type-btn flex-1 text-center py-4 rounded-xl active" id="btn_Both">รวม 2 ใบ</div>
+                            <div onclick="setVoteType('Const')" class="vote-type-btn flex-1 text-center py-4 rounded-xl" id="btn_Const">แบ่งเขต</div>
+                            <div onclick="setVoteType('PL')" class="vote-type-btn flex-1 text-center py-4 rounded-xl" id="btn_PL">บัญชีรายชื่อ</div>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 border-2 border-amber-100 p-6 rounded-3xl flex items-center gap-5">
+                        <input type="checkbox" id="singleDigitOnly" class="w-10 h-10 cursor-pointer accent-amber-600">
+                        <label for="singleDigitOnly" class="text-xl font-black text-amber-900 cursor-pointer">กรองเฉพาะหมายเลข 1-9</label>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <input type="text" id="partySearch" placeholder="พิมพ์ชื่อพรรค..." class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-bold text-lg">
+                    <div class="flex items-center justify-between p-6 bg-blue-50 rounded-3xl border-2 border-blue-100">
+                        <span class="text-blue-800 font-bold">เลือกแล้ว: <span id="selectedCount" class="text-2xl font-black">0</span></span>
+                        <div class="flex gap-4">
+                            <button onclick="selectAll(true)" class="text-blue-600 hover:underline font-bold text-sm">เลือกทั้งหมด</button>
+                            <button onclick="selectAll(false)" class="text-slate-400 hover:underline font-bold text-sm">ล้าง</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="party-grid border-t pt-8">
+                <div id="partyList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            </div>
+            <div class="mt-12 flex justify-end">
+                <button onclick="updateDashboard()" class="bg-blue-600 text-white px-16 py-5 rounded-3xl font-black shadow-2xl hover:bg-blue-700 text-xl">อัปเดตข้อมูล 🚀</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/election_ultimate_v8.js"></script>
+    <script>
+        // เริ่มการทำงานหลังจากโหลดไฟล์ js เสร็จ
+        window.onload = init;
+    </script>
+</body>
+</html>
