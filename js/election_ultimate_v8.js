@@ -8,11 +8,11 @@ async function init() {
     try {
         // อ้างอิง path สัมพัทธ์กับตัว HTML (ซึ่งอยู่ที่ root)
         const [res69, res66] = await Promise.all([
-            fetch('../data/election_data_69.json').then(r => {
+            fetch('./data/election_data_69.json').then(r => {
                 if (!r.ok) throw new Error('หาไฟล์ 69 ไม่เจอ');
                 return r.json();
             }),
-            fetch('../data/election_data_66.json').then(r => {
+            fetch('./data/election_data_66.json').then(r => {
                 if (!r.ok) throw new Error('หาไฟล์ 66 ไม่เจอ');
                 return r.json();
             })
